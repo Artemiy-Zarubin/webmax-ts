@@ -1,10 +1,23 @@
-# Node
+# Dependencies
 node_modules/
-npm-debug.log
-yarn-error.log
 
-# Sessions (содержат токены!)
+# Sessions (contains sensitive data)
 sessions/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
@@ -13,22 +26,6 @@ sessions/
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Environment
-.env
-.env.local
-
-# Test
-test/
-coverage/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Package manager
+package-lock.json
+yarn.lock

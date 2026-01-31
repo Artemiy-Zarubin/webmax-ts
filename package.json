@@ -23,6 +23,15 @@
     "commonjs"
   ],
   "author": "Tellarion",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tellarion/webmaxsocket.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tellarion/webmaxsocket/issues"
+  },
+  "homepage": "https://github.com/Tellarion/webmaxsocket#readme",
   "dependencies": {
     "qrcode-terminal": "^0.12.0",
     "uuid": "^9.0.0",

@@ -18,13 +18,7 @@
 ## 📦 Установка / Installation
 
 ```bash
-npm install
-```
-
-### Зависимости / Dependencies
-
-```bash
-npm install ws uuid qrcode-terminal
+npm install webmaxsocket
 ```
 
 ## 🚀 Быстрый старт / Quick Start
@@ -32,7 +26,7 @@ npm install ws uuid qrcode-terminal
 ### Базовый пример / Basic Example
 
 ```javascript
-const { WebMaxClient } = require('./index');
+const { WebMaxClient } = require('webmaxsocket');
 
 async function main() {
   // Инициализация клиента / Initialize client
