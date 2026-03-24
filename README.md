@@ -17,7 +17,7 @@
 npm install webmax-ts
 ```
 
-> Пакет ESM‑only. Используйте `import`, `require` не поддерживается.
+> Пакет поддерживает ESM и CommonJS. Для CommonJS используйте `require`, для TS с `module: commonjs` — обычный `import`.
 
 ## 🚀 Быстрый старт
 
@@ -39,6 +39,16 @@ client.onMessage(async message => {
 	if (message.senderId === client.me?.id) return
 	await message.reply({ text: `Я получил: ${message.text}`, cid: Date.now() })
 })
+
+client.start().catch(console.error)
+```
+
+### JavaScript (CommonJS)
+
+```js
+const { WebMaxClient } = require('webmax-ts')
+
+const client = new WebMaxClient({ name: 'my_session' })
 
 client.start().catch(console.error)
 ```

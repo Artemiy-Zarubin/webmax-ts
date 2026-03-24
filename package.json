@@ -1,14 +1,16 @@
 {
 	"name": "webmax-ts",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"description": "Node.js client for Max Messenger with QR code authentication (TypeScript, ESM)",
 	"type": "module",
-	"main": "./dist/index.js",
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js"
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
 		}
 	},
 	"files": [
@@ -16,7 +18,9 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "tsc -p tsconfig.json",
+		"build": "npm run build:esm && npm run build:cjs",
+		"build:esm": "tsc -p tsconfig.json",
+		"build:cjs": "tsc -p tsconfig.cjs.json && node -e \"require('fs').writeFileSync('dist/cjs/package.json', JSON.stringify({ type: 'commonjs' }))\"",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"prepublishOnly": "npm run build"
 	},
