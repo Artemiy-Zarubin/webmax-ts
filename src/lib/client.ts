@@ -1,18 +1,58 @@
-const WebSocket = require('ws');
-const EventEmitter = require('events');
-const { v4: uuidv4 } = require('uuid');
-const qrcode = require('qrcode-terminal');
-const SessionManager = require('./session');
-const { Message, ChatAction, User } = require('./entities');
-const { EventTypes, ChatActions } = require('./constants');
-const { Opcode, DeviceType, getOpcodeName } = require('./opcodes');
-const { UserAgentPayload } = require('./userAgent');
+import WebSocket from 'ws';
+import { EventEmitter } from 'events';
+import { v4 as uuidv4 } from 'uuid';
+import qrcode from 'qrcode-terminal';
+import SessionManager from './session.js';
+import { Message, ChatAction, User } from './entities/index.js';
+import { EventTypes, ChatActions } from './constants.js';
+import { Opcode, DeviceType, getOpcodeName } from './opcodes.js';
+import { UserAgentPayload } from './userAgent.js';
+
+export interface WebMaxClientOptions {
+  phone?: string | null;
+  name?: string;
+  session?: string;
+  apiUrl?: string;
+  userAgent?: UserAgentPayload;
+  appVersion?: string;
+  deviceId?: string;
+  maxReconnectAttempts?: number;
+  reconnectDelay?: number;
+  [key: string]: any;
+}
+
+type PendingRequest = {
+  resolve: (value: any) => void;
+  reject: (reason?: any) => void;
+  timeoutId?: NodeJS.Timeout;
+};
 
 /**
  * Основной клиент для работы с API Max
  */
 class WebMaxClient extends EventEmitter {
-  constructor(options = {}) {
+  phone: string | null;
+  sessionName: string;
+  apiUrl: string;
+  origin: string;
+  session: SessionManager;
+  userAgent: UserAgentPayload;
+  deviceId: string;
+  ws: WebSocket | null;
+  me: User | null;
+  isConnected: boolean;
+  isAuthorized: boolean;
+  reconnectAttempts: number;
+  maxReconnectAttempts: number;
+  reconnectDelay: number;
+  seq: number;
+  ver: number;
+  handlers: Record<string, Array<Function>>;
+  messageQueue: any[];
+  pendingRequests: Map<number, PendingRequest>;
+  _token?: string;
+
+  constructor(options: WebMaxClientOptions = {}) {
     super();
     
     this.phone = options.phone || null;
@@ -23,12 +63,13 @@ class WebMaxClient extends EventEmitter {
     
     // UserAgent
     this.userAgent = options.userAgent || new UserAgentPayload({
-      appVersion: options.appVersion || '25.12.14'
+      appVersion: options.appVersion || '26.3.9'
     });
     
     // Device ID
-    this.deviceId = options.deviceId || this.session.get('deviceId') || uuidv4();
-    if (!this.session.get('deviceId')) {
+    const storedDeviceId = this.session.get<string>('deviceId');
+    this.deviceId = options.deviceId || storedDeviceId || uuidv4();
+    if (!storedDeviceId) {
       this.session.set('deviceId', this.deviceId);
     }
     
@@ -139,7 +180,7 @@ class WebMaxClient extends EventEmitter {
       await this.connect();
       
       // Проверяем наличие сохраненного токена
-      const savedToken = this.session.get('token');
+      const savedToken = this.session.get<string>('token');
       
       if (savedToken) {
         console.log('✅ Найдена сохраненная сессия');
@@ -319,7 +360,7 @@ class WebMaxClient extends EventEmitter {
   async sync() {
     console.log('🔄 Синхронизация с сервером...');
     
-    const token = this._token || this.session.get('token');
+    const token = this._token || this.session.get<string>('token');
     
     if (!token) {
       throw new Error('Токен не найден, требуется авторизация');
@@ -395,7 +436,7 @@ class WebMaxClient extends EventEmitter {
     try {
       await this.connect();
       
-      const token = this.session.get('token');
+      const token = this.session.get<string>('token');
       
       if (!token) {
         console.log('Токен не найден, требуется авторизация');
@@ -428,7 +469,7 @@ class WebMaxClient extends EventEmitter {
       return;
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const headers = {
         'User-Agent': this.userAgent.headerUserAgent,
         'Origin': this.origin
@@ -540,7 +581,7 @@ class WebMaxClient extends EventEmitter {
           await this.handleNewMessage(message.payload);
           break;
           
-        case Opcode.NOTIF_MSG_DELETE:
+        case (Opcode as any).NOTIF_MSG_DELETE:
           await this.handleRemovedMessage(message.payload);
           break;
           
@@ -631,7 +672,7 @@ class WebMaxClient extends EventEmitter {
   /**
    * Отправка запроса через WebSocket и ожидание ответа
    */
-  sendAndWait(opcode, payload, cmd = 0, timeout = 20000) {
+  sendAndWait(opcode: number, payload: any, cmd = 0, timeout = 20000): Promise<any> {
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
         reject(new Error('WebSocket не подключен'));
@@ -838,5 +879,5 @@ class WebMaxClient extends EventEmitter {
   }
 }
 
-module.exports = WebMaxClient;
+export default WebMaxClient;
 

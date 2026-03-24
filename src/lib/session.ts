@@ -1,16 +1,21 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Менеджер сессий для хранения данных авторизации
  */
-class SessionManager {
+export default class SessionManager {
+  sessionName: string;
+  sessionDir: string;
+  sessionFile: string;
+  data: Record<string, unknown>;
+
   constructor(sessionName = 'default') {
     this.sessionName = sessionName;
     this.sessionDir = path.join(process.cwd(), 'sessions');
     this.sessionFile = path.join(this.sessionDir, `${sessionName}.json`);
     this.data = {};
-    
+
     this.ensureSessionDir();
     this.load();
   }
@@ -35,7 +40,7 @@ class SessionManager {
         return true;
       }
     } catch (error) {
-      console.error('Ошибка при загрузке сессии:', error.message);
+      console.error('Ошибка при загрузке сессии:', (error as Error).message);
     }
     return false;
   }
@@ -48,11 +53,11 @@ class SessionManager {
       fs.writeFileSync(
         this.sessionFile,
         JSON.stringify(this.data, null, 2),
-        'utf8'
+        'utf8',
       );
       return true;
     } catch (error) {
-      console.error('Ошибка при сохранении сессии:', error.message);
+      console.error('Ошибка при сохранении сессии:', (error as Error).message);
       return false;
     }
   }
@@ -60,7 +65,7 @@ class SessionManager {
   /**
    * Устанавливает значение в сессии
    */
-  set(key, value) {
+  set(key: string, value: unknown) {
     this.data[key] = value;
     this.save();
   }
@@ -68,14 +73,14 @@ class SessionManager {
   /**
    * Получает значение из сессии
    */
-  get(key, defaultValue = null) {
-    return this.data[key] !== undefined ? this.data[key] : defaultValue;
+  get<T = unknown>(key: string, defaultValue: T | null = null): T | null {
+    return this.data[key] !== undefined ? (this.data[key] as T) : defaultValue;
   }
 
   /**
    * Удаляет значение из сессии
    */
-  delete(key) {
+  delete(key: string) {
     delete this.data[key];
     this.save();
   }
@@ -83,7 +88,7 @@ class SessionManager {
   /**
    * Проверяет наличие ключа в сессии
    */
-  has(key) {
+  has(key: string) {
     return this.data[key] !== undefined;
   }
 
@@ -106,7 +111,7 @@ class SessionManager {
       this.data = {};
       return true;
     } catch (error) {
-      console.error('Ошибка при удалении сессии:', error.message);
+      console.error('Ошибка при удалении сессии:', (error as Error).message);
       return false;
     }
   }
@@ -118,6 +123,3 @@ class SessionManager {
     return this.has('token') && this.has('userId');
   }
 }
-
-module.exports = SessionManager;
-

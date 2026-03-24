@@ -1,8 +1,19 @@
 /**
  * Класс представляющий пользователя
  */
-class User {
-  constructor(data) {
+export default class User {
+  id: string | number | null;
+  firstname: string;
+  lastname: string;
+  username: string | null;
+  phone: string | null;
+  avatar: string | null;
+  photoId: string | number | null;
+  status: string;
+  bio: string;
+  rawData: Record<string, unknown>;
+
+  constructor(data: Record<string, any>) {
     this.id = data.id || data.userId || data.contactId || null;
     this.firstname = data.firstname || data.firstName || data.first_name || '';
     this.lastname = data.lastname || data.lastName || data.last_name || '';
@@ -42,10 +53,7 @@ class User {
       avatar: this.avatar,
       photoId: this.photoId,
       status: this.status,
-      bio: this.bio
+      bio: this.bio,
     };
   }
 }
-
-module.exports = User;
-

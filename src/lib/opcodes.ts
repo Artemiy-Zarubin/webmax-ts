@@ -3,7 +3,7 @@
  * Портировано из PyMax
  */
 
-const Opcode = {
+export const Opcode = {
   PING: 1,
   DEBUG: 2,
   RECONNECT: 3,
@@ -50,28 +50,21 @@ const Opcode = {
   GET_QR: 288,
   GET_QR_STATUS: 289,
   LOGIN_BY_QR: 291,
-};
+} as const;
 
 // Обратная карта для расшифровки опкодов
-const OpcodeNames = {};
+const OpcodeNames: Record<number, string> = {};
 for (const [name, code] of Object.entries(Opcode)) {
-  OpcodeNames[code] = name;
+  OpcodeNames[code as unknown as number] = name;
 }
 
 /**
  * Получить название опкода
  */
-function getOpcodeName(code) {
+export function getOpcodeName(code: number) {
   return OpcodeNames[code] || `UNKNOWN_${code}`;
 }
 
-const DeviceType = {
+export const DeviceType = {
   WEB: 'WEB',
-};
-
-module.exports = {
-  Opcode,
-  DeviceType,
-  getOpcodeName,
-};
-
+} as const;

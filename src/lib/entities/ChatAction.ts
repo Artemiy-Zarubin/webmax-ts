@@ -1,10 +1,18 @@
-const User = require('./User');
+import User from './User.js';
 
 /**
  * Класс представляющий действие в чате
  */
-class ChatAction {
-  constructor(data, client) {
+export default class ChatAction {
+  client: any;
+  type: string | null;
+  chatId: string | number | null;
+  userId: string | number | null;
+  user: User | null;
+  timestamp: number;
+  rawData: Record<string, any>;
+
+  constructor(data: Record<string, any>, client: any) {
     this.client = client;
     this.type = data.type || data.action || null;
     this.chatId = data.chatId || data.chat_id || null;
@@ -30,10 +38,7 @@ class ChatAction {
       chatId: this.chatId,
       userId: this.userId,
       user: this.user ? this.user.toJSON() : null,
-      timestamp: this.timestamp
+      timestamp: this.timestamp,
     };
   }
 }
-
-module.exports = ChatAction;
-

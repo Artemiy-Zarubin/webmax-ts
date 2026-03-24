@@ -32,26 +32,51 @@ const USER_AGENTS = [
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.2; rv:121.0) Gecko/20100101 Firefox/121.0',
 ];
 
-function randomChoice(array) {
+function randomChoice<T>(array: T[]) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-function randomInt(min, max) {
+function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export interface UserAgentOptions {
+  locale?: string;
+  deviceLocale?: string;
+  osVersion?: string;
+  deviceName?: string;
+  headerUserAgent?: string;
+  appVersion?: string;
+  screen?: string;
+  timezone?: string;
+  clientSessionId?: number;
+  buildNumber?: number;
 }
 
 /**
  * Создает UserAgent пейлоад для Max API
  */
-class UserAgentPayload {
-  constructor(options = {}) {
+export class UserAgentPayload {
+  deviceType: 'WEB';
+  locale: string;
+  deviceLocale: string;
+  osVersion: string;
+  deviceName: string;
+  headerUserAgent: string;
+  appVersion: string;
+  screen: string;
+  timezone: string;
+  clientSessionId: number;
+  buildNumber: number;
+
+  constructor(options: UserAgentOptions = {}) {
     this.deviceType = 'WEB'; // Всегда WEB (только QR авторизация)
     this.locale = options.locale || 'ru';
     this.deviceLocale = options.deviceLocale || 'ru';
     this.osVersion = options.osVersion || randomChoice(OS_VERSIONS);
     this.deviceName = options.deviceName || randomChoice(DEVICE_NAMES);
     this.headerUserAgent = options.headerUserAgent || randomChoice(USER_AGENTS);
-    this.appVersion = options.appVersion || '25.12.14';
+    this.appVersion = options.appVersion || '26.3.9';
     this.screen = options.screen || randomChoice(SCREEN_SIZES);
     this.timezone = options.timezone || randomChoice(TIMEZONES);
     this.clientSessionId = options.clientSessionId || randomInt(1, 15);
@@ -77,6 +102,3 @@ class UserAgentPayload {
     };
   }
 }
-
-module.exports = { UserAgentPayload };
-

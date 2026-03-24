@@ -1,51 +1,56 @@
 {
-  "name": "webmaxsocket",
-  "version": "1.0.0",
-  "description": "Node.js client for Max Messenger with QR code authentication",
-  "main": "index.js",
-  "scripts": {
-    "start": "node example.js",
-    "example": "node example.js"
-  },
-  "keywords": [
-    "max",
-    "messenger",
-    "max-messenger",
-    "oneme",
-    "api",
-    "userbot",
-    "selfbot",
-    "websocket",
-    "qr-code",
-    "qr-auth",
-    "bot",
-    "nodejs",
-    "commonjs"
-  ],
-  "author": "Tellarion",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Tellarion/webmaxsocket.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Tellarion/webmaxsocket/issues"
-  },
-  "homepage": "https://github.com/Tellarion/webmaxsocket#readme",
-  "dependencies": {
-    "qrcode-terminal": "^0.12.0",
-    "uuid": "^9.0.0",
-    "ws": "^8.18.0"
-  },
-  "devDependencies": {},
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "files": [
-    "lib/",
-    "index.js",
-    "example.js",
-    "README.md"
-  ]
+	"name": "webmax-ts",
+	"version": "2.0.0",
+	"description": "Node.js client for Max Messenger with QR code authentication (TypeScript, ESM)",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist/",
+		"README.md"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"prepublishOnly": "npm run build"
+	},
+	"keywords": [
+		"max",
+		"messenger",
+		"max-messenger",
+		"oneme",
+		"api",
+		"userbot",
+		"websocket",
+		"typescript",
+		"esm"
+	],
+	"author": "Artemiy Zarubin",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Artemiy-Zarubin/webmax.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Artemiy-Zarubin/webmax/issues"
+	},
+	"homepage": "https://github.com/Artemiy-Zarubin/webmax#readme",
+	"dependencies": {
+		"qrcode-terminal": "^0.12.0",
+		"uuid": "^9.0.0",
+		"ws": "^8.18.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.13.5",
+		"typescript": "^5.7.3"
+	},
+	"engines": {
+		"node": ">=18"
+	}
 }
-

@@ -1,15 +1,29 @@
-const User = require('./User');
+import User from './User.js';
 
 /**
  * Класс представляющий сообщение
  */
-class Message {
-  constructor(data, client) {
+export default class Message {
+  client: any;
+  id: string | number | null;
+  cid: string | number | null;
+  chatId: string | number | null;
+  text: string;
+  senderId: string | number | null;
+  sender: User | null;
+  timestamp: number;
+  type: string;
+  isEdited: boolean;
+  replyTo: string | number | null;
+  attachments: any[];
+  rawData: Record<string, any>;
+
+  constructor(data: Record<string, any>, client: any) {
     this.client = client;
     this.id = data.id || data.messageId || null;
     this.cid = data.cid || null;
     this.chatId = data.chatId || data.chat_id || null;
-    
+
     // Обработка text: может быть строкой или объектом
     if (typeof data.text === 'string') {
       this.text = data.text;
@@ -19,7 +33,7 @@ class Message {
     } else {
       this.text = data.message || '';
     }
-    
+
     // Обработка sender: может быть объектом User или просто ID
     if (data.sender) {
       if (typeof data.sender === 'object') {
@@ -34,7 +48,7 @@ class Message {
       this.senderId = data.senderId || data.sender_id || data.from_id || null;
       this.sender = null;
     }
-    
+
     this.timestamp = data.timestamp || data.time || Date.now();
     this.type = data.type || 'text';
     this.isEdited = data.isEdited || data.is_edited || false;
@@ -42,7 +56,7 @@ class Message {
     this.attachments = data.attaches || data.attachments || [];
     this.rawData = data;
   }
-  
+
   /**
    * Получить информацию об отправителе
    */
@@ -56,7 +70,7 @@ class Message {
     }
     return this.sender;
   }
-  
+
   /**
    * Получить имя отправителя
    */
@@ -70,7 +84,7 @@ class Message {
   /**
    * Ответить на сообщение
    */
-  async reply(options) {
+  async reply(options: string | { text?: string; cid?: number; [key: string]: any }) {
     if (typeof options === 'string') {
       options = { text: options };
     }
@@ -80,14 +94,14 @@ class Message {
       text: options.text,
       cid: options.cid || Date.now(),
       replyTo: this.id,
-      ...options
+      ...options,
     });
   }
 
   /**
    * Редактировать сообщение
    */
-  async edit(options) {
+  async edit(options: string | { text?: string; [key: string]: any }) {
     if (typeof options === 'string') {
       options = { text: options };
     }
@@ -96,7 +110,7 @@ class Message {
       messageId: this.id,
       chatId: this.chatId,
       text: options.text,
-      ...options
+      ...options,
     });
   }
 
@@ -106,18 +120,18 @@ class Message {
   async delete() {
     return await this.client.deleteMessage({
       messageId: this.id,
-      chatId: this.chatId
+      chatId: this.chatId,
     });
   }
 
   /**
    * Переслать сообщение
    */
-  async forward(chatId) {
+  async forward(chatId: string | number) {
     return await this.client.forwardMessage({
       messageId: this.id,
       fromChatId: this.chatId,
-      toChatId: chatId
+      toChatId: chatId,
     });
   }
 
@@ -143,10 +157,7 @@ class Message {
       type: this.type,
       isEdited: this.isEdited,
       replyTo: this.replyTo,
-      attachments: this.attachments
+      attachments: this.attachments,
     };
   }
 }
-
-module.exports = Message;
-
