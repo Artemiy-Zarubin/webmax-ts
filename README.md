@@ -14,7 +14,7 @@
 ## 📦 Установка
 
 ```bash
-npm install @artemiy-zarubin/webmax
+npm install webmax-ts
 ```
 
 > Пакет ESM‑only. Используйте `import`, `require` не поддерживается.
@@ -24,7 +24,7 @@ npm install @artemiy-zarubin/webmax
 ### JavaScript (ESM)
 
 ```js
-import { WebMaxClient } from 'webmaxsocket'
+import { WebMaxClient } from 'webmax-ts'
 
 const client = new WebMaxClient({
 	name: 'my_session',
@@ -46,7 +46,7 @@ client.start().catch(console.error)
 ### TypeScript
 
 ```ts
-import { WebMaxClient, ChatActions } from 'webmaxsocket'
+import { WebMaxClient, ChatActions } from 'webmax-ts'
 
 const client = new WebMaxClient({ name: 'my_session' })
 
@@ -91,7 +91,7 @@ client.start().catch(console.error)
 ### пример использования
 
 ```ts
-import { WebMaxClient, UserAgentPayload } from '@artemiy-zarubin/webmax'
+import { WebMaxClient, UserAgentPayload } from 'webmax-ts'
 
 const userAgent = new UserAgentPayload({
 	locale: 'ru',
