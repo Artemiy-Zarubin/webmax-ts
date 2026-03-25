@@ -158,7 +158,7 @@ const client = new WebMaxClient({
 ### Константы
 
 ```ts
-import { ChatActions } from '@artemiy-zarubin/webmax'
+import { ChatActions } from 'webmax-ts'
 
 ChatActions.TYPING
 ChatActions.STICKER
