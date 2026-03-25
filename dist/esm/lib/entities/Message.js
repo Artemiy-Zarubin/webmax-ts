@@ -12,6 +12,14 @@ const getErrorMessage = (error) => {
     }
     return String(error);
 };
+const isFileAttach = (attachment) => attachment._type === 'FILE' && (typeof attachment.fileId === 'string' || typeof attachment.fileId === 'number');
+const getFileIdFromAttach = (attachment) => {
+    const fileId = attachment.fileId ?? attachment.file_id ?? attachment.id;
+    if (typeof fileId === 'string' || typeof fileId === 'number') {
+        return fileId;
+    }
+    return null;
+};
 /**
  * Класс представляющий сообщение
  */
@@ -59,11 +67,9 @@ export default class Message {
         this.type = typeof data.type === 'string' ? data.type : 'text';
         this.isEdited = Boolean(data.isEdited || data.is_edited);
         this.replyTo = asId(data.replyTo) || asId(data.reply_to) || null;
-        this.attachments = Array.isArray(data.attaches)
-            ? data.attaches
-            : Array.isArray(data.attachments)
-                ? data.attachments
-                : [];
+        const rawAttachments = Array.isArray(data.attaches) ? data.attaches : Array.isArray(data.attachments) ? data.attachments : [];
+        this.attachments = rawAttachments.filter(isRecord);
+        this.attaches = this.attachments;
         this.rawData = data;
     }
     /**
@@ -136,6 +142,41 @@ export default class Message {
             messageId: this.id,
             fromChatId: this.chatId,
             toChatId: chatId,
+        });
+    }
+    /**
+     * Скачать FILE-вложение из сообщения
+     */
+    async downloadFile(index, options = {}) {
+        if (!this.chatId || !this.id) {
+            throw new Error('Невозможно скачать файл: отсутствует chatId или messageId');
+        }
+        let attachment = null;
+        if (typeof index === 'number') {
+            const candidate = this.attachments[index];
+            if (!candidate || !isFileAttach(candidate)) {
+                throw new Error(`Вложение с индексом ${index} не является FILE`);
+            }
+            attachment = candidate;
+        }
+        else {
+            const found = this.attachments.find(isFileAttach);
+            if (found) {
+                attachment = found;
+            }
+        }
+        if (!attachment) {
+            throw new Error('В сообщении нет FILE-вложений');
+        }
+        const fileId = getFileIdFromAttach(attachment);
+        if (!fileId) {
+            throw new Error('Не удалось определить fileId для FILE-вложения');
+        }
+        return this.client.downloadFile({
+            fileId,
+            chatId: this.chatId,
+            messageId: this.id,
+            output: options.output,
         });
     }
     /**

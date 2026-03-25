@@ -7,6 +7,11 @@ const ws_1 = __importDefault(require("ws"));
 const events_1 = require("events");
 const uuid_1 = require("uuid");
 const qrcode_terminal_1 = __importDefault(require("qrcode-terminal"));
+const node_fs_1 = require("node:fs");
+const promises_1 = require("node:fs/promises");
+const node_path_1 = __importDefault(require("node:path"));
+const node_stream_1 = require("node:stream");
+const promises_2 = require("node:stream/promises");
 const session_js_1 = __importDefault(require("./session.js"));
 const index_js_1 = require("./entities/index.js");
 const constants_js_1 = require("./constants.js");
@@ -635,6 +640,53 @@ class WebMaxClient extends events_1.EventEmitter {
         };
         await this.sendAndWait(opcodes_js_1.Opcode.MSG_DELETE, payload);
         return true;
+    }
+    /**
+     * Получить ссылку для скачивания файла (opcode 88)
+     */
+    async getFileLink(params) {
+        const payload = {
+            fileId: params.fileId,
+            chatId: params.chatId,
+            messageId: params.messageId,
+        };
+        const response = await this.sendAndWait(opcodes_js_1.Opcode.FILE_DOWNLOAD, payload);
+        if (!isRecord(response.payload)) {
+            throw new Error('Некорректный ответ от сервера: payload отсутствует');
+        }
+        if (response.payload.error) {
+            throw new Error(`File link error: ${JSON.stringify(response.payload.error)}`);
+        }
+        const url = response.payload.url;
+        if (typeof url !== 'string' || !url) {
+            throw new Error('Не удалось получить ссылку для скачивания файла');
+        }
+        const unsafe = typeof response.payload.unsafe === 'boolean' ? response.payload.unsafe : false;
+        return { url, unsafe };
+    }
+    /**
+     * Скачать файл по ссылке и вернуть Buffer или путь к файлу
+     */
+    async downloadFile(params) {
+        const { output, ...linkParams } = params;
+        const { url, unsafe } = await this.getFileLink(linkParams);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Ошибка скачивания файла: ${response.status} ${response.statusText}`);
+        }
+        if (output) {
+            const outputPath = node_path_1.default.resolve(output);
+            const dirPath = node_path_1.default.dirname(outputPath);
+            await (0, promises_1.mkdir)(dirPath, { recursive: true });
+            if (!response.body) {
+                throw new Error('Ответ не содержит тела для скачивания файла');
+            }
+            const webStream = response.body;
+            await (0, promises_2.pipeline)(node_stream_1.Readable.fromWeb(webStream), (0, node_fs_1.createWriteStream)(outputPath));
+            return { path: outputPath, url, unsafe };
+        }
+        const data = await response.arrayBuffer();
+        return Buffer.from(data);
     }
     /**
      * Получение информации о пользователе по ID

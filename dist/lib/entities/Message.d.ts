@@ -1,6 +1,21 @@
 import type WebMaxClient from '../client.js';
+import type { DownloadToFileResult } from '../client.js';
 import User from './User.js';
 type UnknownRecord = Record<string, unknown>;
+export interface MessageAttachment {
+    _type?: string;
+    fileId?: string | number;
+    id?: string | number;
+    name?: string;
+    size?: number;
+    token?: string;
+    baseUrl?: string;
+    [key: string]: unknown;
+}
+export interface FileMessageAttachment extends MessageAttachment {
+    _type: 'FILE';
+    fileId: string | number;
+}
 type MessageReplyOptions = {
     text?: string;
     cid?: number;
@@ -9,6 +24,9 @@ type MessageReplyOptions = {
 type MessageEditOptions = {
     text?: string;
     [key: string]: unknown;
+};
+type MessageDownloadOptions = {
+    output?: string;
 };
 /**
  * Класс представляющий сообщение
@@ -25,7 +43,8 @@ export default class Message {
     type: string;
     isEdited: boolean;
     replyTo: string | number | null;
-    attachments: unknown[];
+    attachments: MessageAttachment[];
+    attaches: MessageAttachment[];
     rawData: UnknownRecord;
     constructor(data: UnknownRecord, client: WebMaxClient);
     /**
@@ -57,6 +76,10 @@ export default class Message {
      */
     forward(chatId: string | number): Promise<unknown>;
     /**
+     * Скачать FILE-вложение из сообщения
+     */
+    downloadFile(index?: number, options?: MessageDownloadOptions): Promise<Buffer | DownloadToFileResult>;
+    /**
      * Возвращает строковое представление сообщения
      */
     toString(): string;
@@ -84,7 +107,7 @@ export default class Message {
         type: string;
         isEdited: boolean;
         replyTo: string | number | null;
-        attachments: unknown[];
+        attachments: MessageAttachment[];
     };
 }
 export {};

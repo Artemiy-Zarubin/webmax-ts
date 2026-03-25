@@ -62,6 +62,19 @@ export interface DeleteMessageOptions {
     chatId: string | number;
     forMe?: boolean;
 }
+export interface GetFileLinkParams {
+    fileId: string | number;
+    chatId: string | number;
+    messageId: string | number;
+}
+export interface DownloadFileParams extends GetFileLinkParams {
+    output?: string;
+}
+export interface DownloadToFileResult {
+    path: string;
+    url: string;
+    unsafe: boolean;
+}
 /**
  * Основной клиент для работы с API Max
  */
@@ -206,6 +219,17 @@ declare class WebMaxClient extends EventEmitter {
      * Удаление сообщения
      */
     deleteMessage(options: DeleteMessageOptions): Promise<boolean>;
+    /**
+     * Получить ссылку для скачивания файла (opcode 88)
+     */
+    getFileLink(params: GetFileLinkParams): Promise<{
+        url: string;
+        unsafe: boolean;
+    }>;
+    /**
+     * Скачать файл по ссылке и вернуть Buffer или путь к файлу
+     */
+    downloadFile(params: DownloadFileParams): Promise<Buffer | DownloadToFileResult>;
     /**
      * Получение информации о пользователе по ID
      */
