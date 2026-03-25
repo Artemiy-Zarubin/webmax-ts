@@ -1,6 +1,6 @@
 {
 	"name": "webmax-ts",
-	"version": "2.2.1",
+	"version": "2.3.2",
 	"description": "Node.js client for Max Messenger with QR code authentication (TypeScript, ESM)",
 	"type": "module",
 	"main": "./dist/cjs/index.js",
